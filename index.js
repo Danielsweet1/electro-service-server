@@ -20,33 +20,54 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
-const serviceCollection = client.db('electroService').collection('services')
+const serviceCollection = client.db("electroService").collection("services");
+const reviewCollection = client.db('electroService').collection('reviews')
 
-async function run (){
-    try{
-        app.get('/home/services',async (req,res)=>{
-            const query = {}
-            const result = await serviceCollection.find(query).limit(3).toArray()
-            res.send(result)
-        })
-        app.get('/services',async (req,res)=>{
-            const query = {}
-            const result = await serviceCollection.find(query).toArray()
-            res.send(result)
-        })
+async function run() {
+  try {
 
-        app.get('/services/:id',async(req,res)=>{
-            const id = req.params.id
-            const query = {_id: ObjectId(id)}
-            const result = await serviceCollection.findOne(query)
-            res.send(result)
-        })
-    }
-    finally{
+    //services
+    app.get("/home/services", async (req, res) => {
+      const query = {};
+      const result = await serviceCollection.find(query).limit(3).toArray();
+      res.send(result);
+    });
+    app.get("/services", async (req, res) => {
+      const query = {};
+      const result = await serviceCollection.find(query).toArray();
+      res.send(result);
+    });
 
-    }
+    app.get("/services/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await serviceCollection.findOne(query);
+      res.send(result);
+    });
+
+    app.post("/services", async (req, res) => {
+      const service = req.body;
+      const query = {
+        serviceName: service.serviceName,
+        img: service.photo,
+        price: service.price,
+        rating: service.rating,
+        description: service.description
+      };
+      const result = await serviceCollection.insertOne(query);
+      res.send(result);
+    });
+
+    //Reviews
+    app.get('/reviews', async(req,res)=>{
+      const query = {}
+      const result = await reviewCollection.find(query).toArray();
+      res.send(result)
+    })
+  } finally {
+  }
 }
-run().catch(e=>console.log(e))
+run().catch((e) => console.log(e));
 
 app.listen(port, () => {
   console.log("server is running on port", port);
