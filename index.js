@@ -21,11 +21,10 @@ const client = new MongoClient(uri, {
 });
 
 const serviceCollection = client.db("electroService").collection("services");
-const reviewCollection = client.db('electroService').collection('reviews')
+const reviewCollection = client.db("electroService").collection("reviews");
 
 async function run() {
   try {
-
     //services
     app.get("/home/services", async (req, res) => {
       const query = {};
@@ -52,18 +51,59 @@ async function run() {
         img: service.photo,
         price: service.price,
         rating: service.rating,
-        description: service.description
+        description: service.description,
       };
       const result = await serviceCollection.insertOne(query);
       res.send(result);
     });
 
     //Reviews
-    app.get('/reviews', async(req,res)=>{
-      const query = {}
+
+    //get reviews by id
+    app.get("/reviews/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { serviceId: id };
       const result = await reviewCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    //get reviews by email
+    app.get("/reviews", async (req, res) => {
+      const userEmail = req.query.email
+      let query = {}
+      if(userEmail){
+        query= {
+          email: userEmail
+        }
+      }
+      const result = await reviewCollection.find(query).toArray()
+      res.send(result)
+      
+    });
+    //post review
+    app.post("/reviews", async (req, res) => {
+      const { userName, userImage, review, serviceId, email, serviceName } = req.body;
+      const query = {
+        userName,
+        userImage,
+        review,
+        serviceId,
+        email,
+        serviceName
+      };
+      const result = await reviewCollection.insertOne(query);
+      res.send(result);
+    });
+
+    //delete review
+    app.delete('/reviews/:id', async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id: ObjectId(id)}
+
+      const result = await reviewCollection.deleteOne(query)
       res.send(result)
     })
+
   } finally {
   }
 }
