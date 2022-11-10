@@ -96,10 +96,7 @@ async function run() {
 
     //Reviews
 
-   
-
-    
-
+  
     //get reviews by email
     app.get("/reviews", verifyJwt, async (req, res) => {
       const userEmail = req.query.email;
@@ -122,6 +119,8 @@ async function run() {
       res.send(result);
     });
 
+    //get review by service id
+
     app.get('/service/reviews',async(req,res)=>{
       let query = {}
       if(req.query.serviceId){
@@ -142,7 +141,7 @@ async function run() {
       res.send(result);
     });
 
-    //delete review
+    //delete review by id
     app.delete("/reviews/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -151,7 +150,7 @@ async function run() {
       res.send(result);
     });
 
-     //get reviews by id
+     //update reviews by id
      app.get("/reviews/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
